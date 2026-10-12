@@ -1,0 +1,105 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Actions\{{studly}}\Save{{studly}}Action;
+use App\Http\Requests\{{studly}}\Save{{studly}}Request;
+use App\Http\Resources\{{studly}}Resource;
+use App\Models\{{studly}};
+use App\Repositories\{{studly}}Repository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
+
+class {{studly}}Controller extends Controller
+{
+    public function __construct(
+        protected {{studly}}Repository ${{camel}}Repository
+    ) {}
+
+    public function index()
+    {
+        $this->authorize('{{permissionKey}}.view');
+
+        if (request()->expectsJson()) {
+            $filter = request('filter', 'active');
+            $data = $this->{{camel}}Repository->getAll($filter);
+
+            return {{studly}}Resource::collection($data);
+        }
+
+        return view('{{viewFolder}}.index');
+    }
+
+    public function create(): View
+    {
+        $this->authorize('{{permissionKey}}.create');
+
+        return view('{{viewFolder}}.create');
+    }
+
+    public function store(Save{{studly}}Request $request, Save{{studlyAction}}Action $action): {{studly}}Resource
+    {
+        $this->authorize('{{permissionKey}}.create');
+
+        ${{camel}} = $action->handle($request);
+
+        return new {{studly}}Resource(${{camel}});
+    }
+
+    public function show({{studly}} ${{camel}}): {{studly}}Resource
+    {
+        $this->authorize('{{permissionKey}}.view');
+
+        return new {{studly}}Resource(${{camel}});
+    }
+
+    public function edit({{studly}} ${{camel}}): View
+    {
+        $this->authorize('{{permissionKey}}.edit');
+
+        return view('{{viewFolder}}.edit', compact('{{camel}}'));
+    }
+
+    public function update(Save{{studly}}Request $request, {{studly}} ${{camel}}, Save{{studly}}Action $action): {{studly}}Resource
+    {
+        $this->authorize('{{permissionKey}}.update');
+
+        ${{camel}} = $action->handle($request, ${{camel}});
+
+        return new {{studly}}Resource(${{camel}});
+    }
+
+    public function destroy({{studly}} ${{camel}}): Response
+    {
+        $this->authorize('{{permissionKey}}.delete');
+
+        ${{camel}}->delete();
+
+        return response()->noContent();
+    }
+
+    public function restore(int $id): JsonResponse
+    {
+        $this->authorize('{{permissionKey}}.restore');
+
+        ${{camel}} = {{studly}}::onlyTrashed()->findOrFail($id);
+        ${{camel}}->restore();
+
+        return response()->json([
+            'message' => 'Data berhasil dipulihkan',
+        ]);
+    }
+
+    public function forceDelete(int $id): JsonResponse
+    {
+        $this->authorize('{{permissionKey}}.forceDelete');
+
+        ${{camel}} = {{studly}}::onlyTrashed()->findOrFail($id);
+        ${{camel}}->forceDelete();
+
+        return response()->json([
+            'message' => 'Data berhasil dihapus permanen',
+        ]);
+    }
+}

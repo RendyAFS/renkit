@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Actions\{{studly}};
+
+use App\Http\Requests\{{studly}}\Save{{studly}}Request;
+use App\Models\{{studly}};
+use Illuminate\Support\Facades\DB;
+
+class Save{{studly}}Action
+{
+    /**
+     * Handle saving or updating {{title}}.
+     */
+    public function handle(Save{{studly}}Request $request, ?{{studly}} ${{camel}} = null): {{studly}}
+    {
+        $data = $request->validated();
+
+        return DB::transaction(function () use ($data, ${{camel}}) {
+            if (${{camel}}) {
+                ${{camel}}->update($data);
+                return ${{camel}};
+            }
+
+            return {{studly}}::create($data);
+        });
+    }
+}

@@ -1,0 +1,94 @@
+import ApiProvider from "@/utils/api-provider";
+import initCardgrid from "@/utils/cardgrid";
+
+const PageScript = (function () {
+    let cardgrid;
+
+    const reloadGrid = () => {
+        if (cardgrid) {
+            cardgrid.reload();
+        }
+    };
+
+    const handleDelete = (id, name) => {
+        const confirmDelete = window.Confirm?.delete
+            ? window.Confirm.delete(`Hapus data ${name}?`)
+            : Promise.resolve(confirm(`Apakah Anda yakin ingin menghapus ${name}?`));
+
+        confirmDelete.then(async (confirmed) => {
+            if (!confirmed) return;
+            try {
+                await ApiProvider.delete(route("{{routePrefix}}.destroy", id));
+                if (window.Toast?.success) {
+                    window.Toast.success("Sukses", "Data berhasil dihapus");
+                }
+                reloadGrid();
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        });
+    };
+
+    const renderCard = (item) => {
+        return `
+        <div class="bg-(--color-light) dark:bg-(--color-dark) rounded-xl shadow p-4 flex flex-col justify-between gap-3 border border-(--color-light-gray) dark:border-(--color-slate)">
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${item.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}">
+                        ${item.is_active ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                    <span class="text-xs text-(--color-dark-gray)">#${item.id}</span>
+                </div>
+                <h3 class="font-bold text-base text-(--color-dark) dark:text-(--color-light) truncate">${item.name}</h3>
+                <p class="text-xs text-muted-foreground-1 mt-1 line-clamp-2">${item.description || '-'}</p>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-(--color-gray)/20">
+                <span class="text-xs text-(--color-dark-gray)">${item.created_at ?? ''}</span>
+                <div class="flex items-center gap-1">
+                    <a href="${route("{{routePrefix}}.edit", item.id)}" class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer" title="Ubah">
+                        <i data-lucide="square-pen" class="size-4"></i>
+                    </a>
+                    <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer" data-id="${item.id}" data-name="${item.name ?? ''}" title="Hapus">
+                        <i data-lucide="trash-2" class="size-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+    };
+
+    const initGrid = () => {
+        cardgrid = initCardgrid({
+            containerId: "#{{kebab}}-cardgrid",
+            filterSelector: "#filter-{{kebab}}",
+            ajax: {
+                url: route("{{routePrefix}}.index"),
+            },
+            renderCard,
+            pageLength: 12,
+            cardClickRoute: (row) => route("{{routePrefix}}.edit", row.id),
+        });
+
+        const container = document.querySelector("#{{kebab}}-cardgrid");
+        if (container) {
+            container.addEventListener("click", function (e) {
+                const btnDelete = e.target.closest(".btn-delete");
+                if (btnDelete) {
+                    e.stopPropagation();
+                    handleDelete(btnDelete.dataset.id, btnDelete.dataset.name);
+                }
+            });
+        }
+    };
+
+    return {
+        init() {
+            initGrid();
+        },
+    };
+})();
+
+$(function () {
+    PageScript.init();
+});

@@ -1,0 +1,36 @@
+@extends('layouts.main', ['title' => 'Ubah {{title}}'])
+
+@push('scripts')
+    @vite('resources/js/pages/{{jsFolder}}/form.js')
+@endpush
+
+@section('content')
+    <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold">Ubah {{title}}</h1>
+                <p class="text-sm text-(--color-dark-gray) mt-1">Perbarui data {{title}}</p>
+            </div>
+            <a href="{{ route('{{routePrefix}}.index') }}"
+                class="px-4 py-2 text-sm font-medium rounded-lg border border-(--color-gray) hover:bg-(--color-light-gray) dark:border-(--color-slate) dark:hover:bg-(--color-dark-slate)">
+                Kembali
+            </a>
+        </div>
+
+        <div class="bg-(--color-light) dark:bg-(--color-dark) p-6 rounded-xl border border-(--color-light-gray) dark:border-(--color-slate) shadow-xs">
+            <form id="{{kebab}}-form" data-mode="edit" data-id="{{ ${{camel}}->id }}">
+                @include('{{viewFolder}}.form', ['{{camel}}' => ${{camel}}])
+
+                <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-(--color-gray)/20">
+                    <a href="{{ route('{{routePrefix}}.index') }}"
+                        class="px-4 py-2 text-sm font-semibold rounded-lg bg-(--color-light-gray) hover:bg-(--color-gray)/40 text-(--color-dark) dark:bg-(--color-dark-slate) dark:text-(--color-light)">
+                        Batal
+                    </a>
+                    <x-button-loading type="submit" text="Perbarui" loadingText="Memperbarui..."
+                        color="bg-(--color-primary) hover:bg-(--color-primary)/80"
+                        textColor="text-(--color-light)" size="py-2 px-5 text-sm" rounded="rounded-lg" />
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

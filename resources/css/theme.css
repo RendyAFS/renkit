@@ -1,0 +1,51 @@
+:root {
+    /* Brand Theme Colors */
+    --color-primary: #6d9886;
+    --color-light-primary: #b0dbc9;
+    --color-secondary: #f2e7d5;
+    --color-dark: #282b31;
+    --color-light: #f7f7f7;
+
+    /* Notification Colors */
+    --color-red: #e62727;
+    --color-green: #27e67d;
+    --color-yellow: #e6b327;
+    --color-blue: #2764e6;
+
+    /* Process / Status Colors */
+    --color-danger: #d44e4e;
+    --color-success: #66a76b;
+    --color-warning: #e2a156;
+    --color-info: #63d6da;
+
+    /* Neutral & Slate Colors */
+    --color-gray: #c0c0c0;
+    --color-light-gray: #ececec;
+    --color-dark-gray: #949494;
+    --color-slate: #4b5563;
+    --color-dark-slate: #373e47;
+
+    /* Base Colors */
+    --color-black: #000000;
+    --color-white: #ffffff;
+
+    /* Badge Danger */
+    --color-badge-danger: #f57d7d;
+    --color-badge-danger-dark: #8b2626;
+    --color-badge-danger-foreground: #5a1919;
+
+    /* Badge Success */
+    --color-badge-success: #98e4a7;
+    --color-badge-success-dark: #1f7e32;
+    --color-badge-success-foreground: #114d1d;
+
+    /* Badge Warning */
+    --color-badge-warning: #f0c073;
+    --color-badge-warning-dark: #97822b;
+    --color-badge-warning-foreground: #5f511a;
+
+    /* Badge Info */
+    --color-badge-info: #84e2e2;
+    --color-badge-info-dark: #256985;
+    --color-badge-info-foreground: #11374d;
+}

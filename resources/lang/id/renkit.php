@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'search' => 'Cari data...',
+    'all' => 'Semua',
+    'active' => 'Aktif',
+    'deleted' => 'Terhapus',
+    'show' => 'Tampilkan',
+    'loading' => 'Memuat data...',
+    'empty' => 'Tidak ada data ditemukan',
+    'previous' => 'Sebelumnya',
+    'next' => 'Berikutnya',
+    'showing_info' => 'Menampilkan :from – :to dari :total data',
+    'save' => 'Simpan',
+    'saving' => 'Menyimpan...',
+    'cancel' => 'Batal',
+    'close' => 'Tutup',
+    'confirm' => 'Konfirmasi',
+    'delete' => 'Hapus',
+    'delete_confirm' => 'Apakah Anda yakin ingin menghapus data ini?',
+    'delete_permanent_confirm' => 'Apakah Anda yakin ingin menghapus data ini secara permanen?',
+    'restore_confirm' => 'Apakah Anda yakin ingin memulihkan data ini?',
+    'success' => 'Sukses',
+    'error' => 'Gagal',
+    'warning' => 'Peringatan',
+    'info' => 'Informasi',
+];

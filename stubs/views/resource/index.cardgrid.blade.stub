@@ -1,0 +1,25 @@
+@extends('layouts.main', ['title' => '{{title}}'])
+
+@push('scripts')
+    @vite('resources/js/pages/{{jsFolder}}/index.js')
+@endpush
+
+@section('content')
+    <div class="space-y-6">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="mb-3 md:mb-0">
+                <h1 class="text-3xl font-bold">{{title}}</h1>
+                <p class="text-sm text-(--color-dark-gray) mt-1">Daftar kelola {{title}}</p>
+            </div>
+
+            <a href="{{ route('{{routePrefix}}.create') }}"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                  bg-(--color-primary) text-(--color-light) hover:bg-(--color-primary)/80 cursor-pointer">
+                <i data-lucide="plus" class="size-4"></i>
+                Tambah {{title}}
+            </a>
+        </div>
+
+        <x-cardgrid id="{{kebab}}-cardgrid" filterId="filter-{{kebab}}" :defaultLength="12" :lengthOptions="[12, 24, 48]" />
+    </div>
+@endsection

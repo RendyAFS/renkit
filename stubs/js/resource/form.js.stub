@@ -1,0 +1,53 @@
+import ApiProvider from "@/utils/api-provider";
+import { startLoading, stopLoading } from "@/utils/button-loading";
+
+const FormScript = (function () {
+    const initForm = () => {
+        const form = document.querySelector("#{{kebab}}-form");
+        if (!form) return;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            startLoading(submitBtn);
+
+            const mode = form.dataset.mode || "create";
+            const id = form.dataset.id;
+            const formData = new FormData(form);
+
+            const payload = {
+                name: formData.get("name"),
+                description: formData.get("description"),
+                is_active: formData.get("is_active") ? 1 : 0,
+            };
+
+            try {
+                if (mode === "create") {
+                    await ApiProvider.post(route("{{routePrefix}}.store"), payload);
+                    if (window.flashToast) {
+                        window.flashToast("success", "Sukses", "{{title}} berhasil dibuat");
+                    }
+                } else {
+                    await ApiProvider.put(route("{{routePrefix}}.update", id), payload);
+                    if (window.flashToast) {
+                        window.flashToast("success", "Sukses", "{{title}} berhasil diperbarui");
+                    }
+                }
+                window.location.href = route("{{routePrefix}}.index");
+            } catch (error) {
+                console.error("Submit error:", error);
+                stopLoading(submitBtn);
+            }
+        });
+    };
+
+    return {
+        init() {
+            initForm();
+        },
+    };
+})();
+
+$(function () {
+    FormScript.init();
+});

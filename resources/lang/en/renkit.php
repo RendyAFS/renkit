@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'search' => 'Search data...',
+    'all' => 'All',
+    'active' => 'Active',
+    'deleted' => 'Deleted',
+    'show' => 'Show',
+    'loading' => 'Loading data...',
+    'empty' => 'No data found',
+    'previous' => 'Previous',
+    'next' => 'Next',
+    'showing_info' => 'Showing :from to :to of :total entries',
+    'save' => 'Save',
+    'saving' => 'Saving...',
+    'cancel' => 'Cancel',
+    'close' => 'Close',
+    'confirm' => 'Confirm',
+    'delete' => 'Delete',
+    'delete_confirm' => 'Are you sure you want to delete this item?',
+    'delete_permanent_confirm' => 'Are you sure you want to permanently delete this item?',
+    'restore_confirm' => 'Are you sure you want to restore this item?',
+    'success' => 'Success',
+    'error' => 'Error',
+    'warning' => 'Warning',
+    'info' => 'Information',
+];

@@ -1,0 +1,218 @@
+import ApiProvider from "@/utils/api-provider";
+import initDatatable from "@/utils/datatable";
+import { startLoading, stopLoading } from "@/utils/button-loading";
+
+const PageScript = (function () {
+    let datatable;
+    let form;
+    const modalId = "#hs-{{kebab}}-modal";
+
+    const reloadDatatable = () => {
+        if (datatable) {
+            datatable.ajax.reload(null, false);
+        }
+    };
+
+    const openModal = () => {
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modalId);
+        }
+    };
+
+    const closeModal = () => {
+        if (window.HSOverlay) {
+            window.HSOverlay.close(modalId);
+        }
+    };
+
+    const resetForm = () => {
+        if (!form) return;
+        form.reset();
+        form.dataset.mode = "create";
+        delete form.dataset.id;
+        const activeCheck = form.querySelector("#{{kebab}}-is-active");
+        if (activeCheck) activeCheck.checked = true;
+    };
+
+    const fillForm = (data) => {
+        if (!form || !data) return;
+        const nameInput = form.querySelector("#{{kebab}}-name");
+        const descInput = form.querySelector("#{{kebab}}-description");
+        const activeCheck = form.querySelector("#{{kebab}}-is-active");
+
+        if (nameInput) nameInput.value = data.name ?? "";
+        if (descInput) descInput.value = data.description ?? "";
+        if (activeCheck) activeCheck.checked = Boolean(data.is_active);
+    };
+
+    const handleEdit = async (id) => {
+        try {
+            const response = await ApiProvider.get(route("{{routePrefix}}.show", id));
+            const data = response.data ?? response;
+            form.dataset.mode = "edit";
+            form.dataset.id = id;
+            fillForm(data);
+            openModal();
+        } catch (error) {
+            console.error("Fetch data error:", error);
+        }
+    };
+
+    const handleDelete = (id, name) => {
+        const confirmDelete = window.Confirm?.delete
+            ? window.Confirm.delete(`Hapus data ${name}?`)
+            : Promise.resolve(confirm(`Apakah Anda yakin ingin menghapus ${name}?`));
+
+        confirmDelete.then(async (confirmed) => {
+            if (!confirmed) return;
+            try {
+                await ApiProvider.delete(route("{{routePrefix}}.destroy", id));
+                if (window.Toast?.success) {
+                    window.Toast.success("Sukses", "Data berhasil dihapus");
+                }
+                reloadDatatable();
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        });
+    };
+
+    const initDataTable = () => {
+        datatable = initDatatable({
+            table: "#{{routePrefix}}-datatable",
+            filterSelector: "#filter-{{routePrefix}}",
+            onRowClick: (row) => handleEdit(row.id),
+            ajax: {
+                url: route("{{routePrefix}}.index"),
+                method: "GET",
+                dataSrc: "data",
+                data: function (d) {
+                    const filterEl = document.querySelector("#filter-{{routePrefix}}");
+                    if (filterEl) {
+                        d.filter = filterEl.value;
+                    }
+                },
+            },
+            columns: [
+                {
+                    data: "name",
+                    width: "35%",
+                },
+                {
+                    data: "description",
+                    width: "35%",
+                    render(data) {
+                        return `<div class="whitespace-pre-line text-sm text-muted-foreground-1">${data ?? "-"}</div>`;
+                    },
+                },
+                {
+                    data: "is_active",
+                    width: "15%",
+                    orderable: false,
+                    className: "px-4 py-3 text-center",
+                    render(data) {
+                        return data
+                            ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Aktif</span>`
+                            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>`;
+                    },
+                },
+                {
+                    data: "id",
+                    width: "15%",
+                    orderable: false,
+                    searchable: false,
+                    className: "px-4 py-3 text-center",
+                    render(id, type, row) {
+                        return `
+                        <div class="flex items-center justify-center gap-2">
+                            <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" data-id="${id}" title="Ubah">
+                                <i data-lucide="square-pen" class="size-4"></i>
+                            </button>
+                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="${id}" data-name="${row.name ?? ''}" title="Hapus">
+                                <i data-lucide="trash-2" class="size-4"></i>
+                            </button>
+                        </div>
+                        `;
+                    },
+                },
+            ],
+            drawCallback: function () {
+                if (window.lucide) window.lucide.createIcons();
+            },
+        });
+
+        // Event delegation for action buttons
+        $("#{{routePrefix}}-datatable").on("click", ".btn-edit", function (e) {
+            e.stopPropagation();
+            const id = $(this).data("id");
+            handleEdit(id);
+        });
+
+        $("#{{routePrefix}}-datatable").on("click", ".btn-delete", function (e) {
+            e.stopPropagation();
+            const id = $(this).data("id");
+            const name = $(this).data("name");
+            handleDelete(id, name);
+        });
+    };
+
+    const initForm = () => {
+        form = document.querySelector("#{{kebab}}-form");
+        if (!form) return;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            startLoading(submitBtn);
+
+            const mode = form.dataset.mode || "create";
+            const id = form.dataset.id;
+            const formData = new FormData(form);
+
+            const payload = {
+                name: formData.get("name"),
+                description: formData.get("description"),
+                is_active: formData.get("is_active") ? 1 : 0,
+            };
+
+            try {
+                if (mode === "create") {
+                    await ApiProvider.post(route("{{routePrefix}}.store"), payload);
+                    if (window.Toast?.success) {
+                        window.Toast.success("Sukses", "{{title}} berhasil ditambahkan");
+                    }
+                } else {
+                    await ApiProvider.put(route("{{routePrefix}}.update", id), payload);
+                    if (window.Toast?.success) {
+                        window.Toast.success("Sukses", "{{title}} berhasil diperbarui");
+                    }
+                }
+                closeModal();
+                resetForm();
+                reloadDatatable();
+            } catch (error) {
+                console.error("Submit error:", error);
+            } finally {
+                stopLoading(submitBtn);
+            }
+        });
+
+        const btnCreate = document.querySelector("#btn-create-{{kebab}}");
+        if (btnCreate) {
+            btnCreate.addEventListener("click", () => {
+                resetForm();
+            });
+        }
+    };
+
+    return {
+        init() {
+            initDataTable();
+            initForm();
+        },
+    };
+})();
+
+$(function () {
+    PageScript.init();
+});

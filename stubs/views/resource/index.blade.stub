@@ -1,0 +1,43 @@
+@extends('layouts.main', ['title' => '{{title}}'])
+
+@push('scripts')
+    @vite('resources/js/pages/{{jsFolder}}/index.js')
+@endpush
+
+@section('content')
+    <div class="space-y-6">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="mb-3 md:mb-0">
+                <h1 class="text-3xl font-bold">{{title}}</h1>
+                <p class="text-sm text-(--color-dark-gray) mt-1">Daftar kelola {{title}}</p>
+            </div>
+
+            <a href="{{ route('{{routePrefix}}.create') }}"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                  bg-(--color-primary) text-(--color-light) hover:bg-(--color-primary)/80 cursor-pointer">
+                <i data-lucide="plus" class="size-4"></i>
+                Tambah {{title}}
+            </a>
+        </div>
+
+        <x-datatable id="{{routePrefix}}-datatable" filterId="filter-{{routePrefix}}">
+            <thead class="border-b">
+                <tr>
+                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase">
+                        Nama
+                    </th>
+                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase">
+                        Deskripsi
+                    </th>
+                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase text-center">
+                        Status
+                    </th>
+                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase text-center">
+                        <i data-lucide="settings" class="size-4 mx-auto"></i>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-(--color-gray) dark:divide-(--color-dark-gray)"></tbody>
+        </x-datatable>
+    </div>
+@endsection

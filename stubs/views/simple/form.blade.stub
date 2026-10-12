@@ -1,0 +1,32 @@
+<div class="space-y-4">
+    <div>
+        <label for="{{kebab}}-name" class="block text-sm font-medium mb-2 text-(--color-dark) dark:text-(--color-light)">
+            Nama <span class="text-(--color-danger)">*</span>
+        </label>
+        <input type="text" id="{{kebab}}-name" name="name" required
+            class="py-2.5 px-4 block w-full border border-(--color-gray) rounded-lg text-sm
+            focus:border-(--color-primary) focus:ring-(--color-primary)
+            dark:bg-(--color-dark-slate) dark:border-(--color-slate) dark:text-(--color-light)"
+            placeholder="Masukkan nama {{title}}">
+    </div>
+
+    <div>
+        <label for="{{kebab}}-description" class="block text-sm font-medium mb-2 text-(--color-dark) dark:text-(--color-light)">
+            Deskripsi
+        </label>
+        <textarea id="{{kebab}}-description" name="description" rows="3"
+            class="py-2.5 px-4 block w-full border border-(--color-gray) rounded-lg text-sm
+            focus:border-(--color-primary) focus:ring-(--color-primary)
+            dark:bg-(--color-dark-slate) dark:border-(--color-slate) dark:text-(--color-light)"
+            placeholder="Masukkan deskripsi opsional"></textarea>
+    </div>
+
+    <div class="flex items-center gap-x-3 pt-2">
+        <label for="{{kebab}}-is-active" class="relative inline-block w-11 h-6 cursor-pointer">
+            <input type="checkbox" id="{{kebab}}-is-active" name="is_active" value="1" checked class="peer sr-only">
+            <span class="absolute inset-0 bg-(--color-dark-gray) rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-(--color-success)"></span>
+            <span class="absolute top-1/2 inset-s-0.5 -translate-y-1/2 size-5 bg-(--color-light) rounded-full shadow-sm transition-transform duration-200 ease-in-out peer-checked:translate-x-full"></span>
+        </label>
+        <span class="text-sm font-medium text-(--color-dark) dark:text-(--color-light)">Status Aktif</span>
+    </div>
+</div>

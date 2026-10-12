@@ -1,0 +1,10 @@
+<?php
+
+use App\Http\Controllers\{{studly}}Controller;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('{{routePrefix}}')->as('{{routePrefix}}.')->group(function () {
+    Route::put('{{{camel}}}/restore', [{{studly}}Controller::class, 'restore'])->name('restore');
+    Route::delete('{{{camel}}}/force-delete', [{{studly}}Controller::class, 'forceDelete'])->name('force-delete');
+});
+Route::resource('{{routePrefix}}', {{studly}}Controller::class)->names('{{routePrefix}}');

@@ -1,0 +1,115 @@
+import ApiProvider from "@/utils/api-provider";
+import initDatatable from "@/utils/datatable";
+
+const PageScript = (function () {
+    let datatable;
+
+    const reloadDatatable = () => {
+        if (datatable) {
+            datatable.ajax.reload(null, false);
+        }
+    };
+
+    const handleDelete = (id, name) => {
+        const confirmDelete = window.Confirm?.delete
+            ? window.Confirm.delete(`Hapus data ${name}?`)
+            : Promise.resolve(confirm(`Apakah Anda yakin ingin menghapus ${name}?`));
+
+        confirmDelete.then(async (confirmed) => {
+            if (!confirmed) return;
+            try {
+                await ApiProvider.delete(route("{{routePrefix}}.destroy", id));
+                if (window.Toast?.success) {
+                    window.Toast.success("Sukses", "Data berhasil dihapus");
+                }
+                reloadDatatable();
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        });
+    };
+
+    const initDataTable = () => {
+        datatable = initDatatable({
+            table: "#{{routePrefix}}-datatable",
+            filterSelector: "#filter-{{routePrefix}}",
+            onRowClick: (row) => {
+                window.location.href = route("{{routePrefix}}.edit", row.id);
+            },
+            ajax: {
+                url: route("{{routePrefix}}.index"),
+                method: "GET",
+                dataSrc: "data",
+                data: function (d) {
+                    const filterEl = document.querySelector("#filter-{{routePrefix}}");
+                    if (filterEl) {
+                        d.filter = filterEl.value;
+                    }
+                },
+            },
+            columns: [
+                {
+                    data: "name",
+                    width: "35%",
+                },
+                {
+                    data: "description",
+                    width: "35%",
+                    render(data) {
+                        return `<div class="whitespace-pre-line text-sm text-muted-foreground-1">${data ?? "-"}</div>`;
+                    },
+                },
+                {
+                    data: "is_active",
+                    width: "15%",
+                    orderable: false,
+                    className: "px-4 py-3 text-center",
+                    render(data) {
+                        return data
+                            ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Aktif</span>`
+                            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>`;
+                    },
+                },
+                {
+                    data: "id",
+                    width: "15%",
+                    orderable: false,
+                    searchable: false,
+                    className: "px-4 py-3 text-center",
+                    render(id, type, row) {
+                        return `
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="${route("{{routePrefix}}.edit", id)}" class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Ubah">
+                                <i data-lucide="square-pen" class="size-4"></i>
+                            </a>
+                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="${id}" data-name="${row.name ?? ''}" title="Hapus">
+                                <i data-lucide="trash-2" class="size-4"></i>
+                            </button>
+                        </div>
+                        `;
+                    },
+                },
+            ],
+            drawCallback: function () {
+                if (window.lucide) window.lucide.createIcons();
+            },
+        });
+
+        $("#{{routePrefix}}-datatable").on("click", ".btn-delete", function (e) {
+            e.stopPropagation();
+            const id = $(this).data("id");
+            const name = $(this).data("name");
+            handleDelete(id, name);
+        });
+    };
+
+    return {
+        init() {
+            initDataTable();
+        },
+    };
+})();
+
+$(function () {
+    PageScript.init();
+});

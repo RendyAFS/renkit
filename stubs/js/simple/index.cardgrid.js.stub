@@ -1,0 +1,206 @@
+import ApiProvider from "@/utils/api-provider";
+import initCardgrid from "@/utils/cardgrid";
+import { startLoading, stopLoading } from "@/utils/button-loading";
+
+const PageScript = (function () {
+    let cardgrid;
+    let form;
+    const modalId = "#hs-{{kebab}}-modal";
+
+    const reloadGrid = () => {
+        if (cardgrid) {
+            cardgrid.reload();
+        }
+    };
+
+    const openModal = () => {
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modalId);
+        }
+    };
+
+    const closeModal = () => {
+        if (window.HSOverlay) {
+            window.HSOverlay.close(modalId);
+        }
+    };
+
+    const resetForm = () => {
+        if (!form) return;
+        form.reset();
+        form.dataset.mode = "create";
+        delete form.dataset.id;
+        const activeCheck = form.querySelector("#{{kebab}}-is-active");
+        if (activeCheck) activeCheck.checked = true;
+    };
+
+    const fillForm = (data) => {
+        if (!form || !data) return;
+        const nameInput = form.querySelector("#{{kebab}}-name");
+        const descInput = form.querySelector("#{{kebab}}-description");
+        const activeCheck = form.querySelector("#{{kebab}}-is-active");
+
+        if (nameInput) nameInput.value = data.name ?? "";
+        if (descInput) descInput.value = data.description ?? "";
+        if (activeCheck) activeCheck.checked = Boolean(data.is_active);
+    };
+
+    const handleEdit = async (id) => {
+        try {
+            const response = await ApiProvider.get(route("{{routePrefix}}.show", id));
+            const data = response.data ?? response;
+            form.dataset.mode = "edit";
+            form.dataset.id = id;
+            fillForm(data);
+            openModal();
+        } catch (error) {
+            console.error("Fetch data error:", error);
+        }
+    };
+
+    const handleDelete = (id, name) => {
+        const confirmDelete = window.Confirm?.delete
+            ? window.Confirm.delete(`Hapus data ${name}?`)
+            : Promise.resolve(confirm(`Apakah Anda yakin ingin menghapus ${name}?`));
+
+        confirmDelete.then(async (confirmed) => {
+            if (!confirmed) return;
+            try {
+                await ApiProvider.delete(route("{{routePrefix}}.destroy", id));
+                if (window.Toast?.success) {
+                    window.Toast.success("Sukses", "Data berhasil dihapus");
+                }
+                reloadGrid();
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        });
+    };
+
+    const renderCard = (item) => {
+        return `
+        <div class="bg-(--color-light) dark:bg-(--color-dark) rounded-xl shadow p-4 flex flex-col justify-between gap-3 border border-(--color-light-gray) dark:border-(--color-slate)">
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${item.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}">
+                        ${item.is_active ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                    <span class="text-xs text-(--color-dark-gray)">#${item.id}</span>
+                </div>
+                <h3 class="font-bold text-base text-(--color-dark) dark:text-(--color-light) truncate">${item.name}</h3>
+                <p class="text-xs text-muted-foreground-1 mt-1 line-clamp-2">${item.description || '-'}</p>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-(--color-gray)/20">
+                <span class="text-xs text-(--color-dark-gray)">${item.created_at ?? ''}</span>
+                <div class="flex items-center gap-1">
+                    <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer" data-id="${item.id}" title="Ubah">
+                        <i data-lucide="square-pen" class="size-4"></i>
+                    </button>
+                    <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer" data-id="${item.id}" data-name="${item.name ?? ''}" title="Hapus">
+                        <i data-lucide="trash-2" class="size-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+    };
+
+    const initGrid = () => {
+        cardgrid = initCardgrid({
+            containerId: "#{{kebab}}-cardgrid",
+            filterSelector: "#filter-{{kebab}}",
+            ajax: {
+                url: route("{{routePrefix}}.index"),
+            },
+            renderCard,
+            pageLength: 12,
+        });
+
+        // Event delegation for cards
+        const container = document.querySelector("#{{kebab}}-cardgrid");
+        if (container) {
+            container.addEventListener("click", function (e) {
+                const btnEdit = e.target.closest(".btn-edit");
+                const btnDelete = e.target.closest(".btn-delete");
+
+                if (btnEdit) {
+                    e.stopPropagation();
+                    handleEdit(btnEdit.dataset.id);
+                    return;
+                }
+
+                if (btnDelete) {
+                    e.stopPropagation();
+                    handleDelete(btnDelete.dataset.id, btnDelete.dataset.name);
+                    return;
+                }
+
+                const cardWrapper = e.target.closest(".cg-card-wrapper");
+                if (cardWrapper && !e.target.closest("button, a")) {
+                    handleEdit(cardWrapper.dataset.id);
+                }
+            });
+        }
+    };
+
+    const initForm = () => {
+        form = document.querySelector("#{{kebab}}-form");
+        if (!form) return;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            startLoading(submitBtn);
+
+            const mode = form.dataset.mode || "create";
+            const id = form.dataset.id;
+            const formData = new FormData(form);
+
+            const payload = {
+                name: formData.get("name"),
+                description: formData.get("description"),
+                is_active: formData.get("is_active") ? 1 : 0,
+            };
+
+            try {
+                if (mode === "create") {
+                    await ApiProvider.post(route("{{routePrefix}}.store"), payload);
+                    if (window.Toast?.success) {
+                        window.Toast.success("Sukses", "{{title}} berhasil ditambahkan");
+                    }
+                } else {
+                    await ApiProvider.put(route("{{routePrefix}}.update", id), payload);
+                    if (window.Toast?.success) {
+                        window.Toast.success("Sukses", "{{title}} berhasil diperbarui");
+                    }
+                }
+                closeModal();
+                resetForm();
+                reloadGrid();
+            } catch (error) {
+                console.error("Submit error:", error);
+            } finally {
+                stopLoading(submitBtn);
+            }
+        });
+
+        const btnCreate = document.querySelector("#btn-create-{{kebab}}");
+        if (btnCreate) {
+            btnCreate.addEventListener("click", () => {
+                resetForm();
+            });
+        }
+    };
+
+    return {
+        init() {
+            initGrid();
+            initForm();
+        },
+    };
+})();
+
+$(function () {
+    PageScript.init();
+});
