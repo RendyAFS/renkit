@@ -114,6 +114,21 @@ class RenKitInstallCommand extends Command
                         "'localization' => env('RENKIT_LOCALIZATION', false)",
                         $content
                     );
+                    $content = str_replace(
+                        "'default_locale' => env('RENKIT_LOCALE', 'id')",
+                        "'default_locale' => env('RENKIT_LOCALE', 'en')",
+                        $content
+                    );
+
+                    // Ensure APP_LOCALE=en in .env
+                    $envPath = base_path('.env');
+                    if (File::exists($envPath)) {
+                        $envContent = File::get($envPath);
+                        if (str_contains($envContent, 'APP_LOCALE=')) {
+                            $envContent = preg_replace('/APP_LOCALE=[a-zA-Z_-]+/', 'APP_LOCALE=en', $envContent);
+                            File::put($envPath, $envContent);
+                        }
+                    }
                 }
 
                 File::put($configPath, $content);

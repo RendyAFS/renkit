@@ -9,7 +9,7 @@
         <div class="flex flex-wrap justify-between items-center">
             <div class="mb-3 md:mb-0">
                 <h1 class="text-3xl font-bold">{{title}}</h1>
-                <p class="text-sm text-(--color-dark-gray) mt-1">Kelola data {{title}}</p>
+                <p class="text-sm text-(--color-dark-gray) mt-1">Manage {{title}} list</p>
             </div>
 
             <button type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="hs-{{kebab}}-modal"
@@ -17,7 +17,7 @@
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
                   bg-(--color-primary) text-(--color-light) hover:bg-(--color-primary)/80 cursor-pointer">
                 <i data-lucide="plus" class="size-4"></i>
-                Tambah {{title}}
+                Add {{title}}
             </button>
         </div>
 

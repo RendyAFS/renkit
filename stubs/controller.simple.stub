@@ -71,7 +71,7 @@ class {{studly}}Controller extends Controller
         ${{camel}}->restore();
 
         return response()->json([
-            'message' => 'Data berhasil dipulihkan',
+            'message' => 'Data successfully restored',
         ]);
     }
 
@@ -83,7 +83,7 @@ class {{studly}}Controller extends Controller
         ${{camel}}->forceDelete();
 
         return response()->json([
-            'message' => 'Data berhasil dihapus permanen',
+            'message' => 'Data permanently deleted',
         ]);
     }
 }

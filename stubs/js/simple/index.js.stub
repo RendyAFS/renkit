@@ -53,15 +53,15 @@ const PageScript = (function () {
 
     const handleDelete = (id, name) => {
         const confirmDelete = window.Confirm?.delete
-            ? window.Confirm.delete(`Hapus data ${name}?`)
-            : Promise.resolve(confirm(`Apakah Anda yakin ingin menghapus ${name}?`));
+            ? window.Confirm.delete(`Delete ${name}?`)
+            : Promise.resolve(confirm(`Are you sure you want to delete ${name}?`));
 
         confirmDelete.then(async (confirmed) => {
             if (!confirmed) return;
             try {
                 await ApiProvider.delete(route("{{routePrefix}}.destroy", id));
                 if (window.Toast?.success) {
-                    window.Toast.success("Sukses", "Data berhasil dihapus");
+                    window.Toast.success("Success", "Data deleted successfully");
                 }
                 reloadDatatable();
             } catch (error) {
@@ -128,12 +128,12 @@ const PageScript = (function () {
                 if (mode === "create") {
                     await ApiProvider.post(route("{{routePrefix}}.store"), payload);
                     if (window.Toast?.success) {
-                        window.Toast.success("Sukses", "{{title}} berhasil ditambahkan");
+                        window.Toast.success("Success", "{{title}} added successfully");
                     }
                 } else {
                     await ApiProvider.put(route("{{routePrefix}}.update", id), payload);
                     if (window.Toast?.success) {
-                        window.Toast.success("Sukses", "{{title}} berhasil diperbarui");
+                        window.Toast.success("Success", "{{title}} updated successfully");
                     }
                 }
                 closeModal();

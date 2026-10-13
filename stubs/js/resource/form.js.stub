@@ -25,12 +25,12 @@ const FormScript = (function () {
                 if (mode === "create") {
                     await ApiProvider.post(route("{{routePrefix}}.store"), payload);
                     if (window.flashToast) {
-                        window.flashToast("success", "Sukses", "{{title}} berhasil dibuat");
+                        window.flashToast("success", "Success", "{{title}} created successfully");
                     }
                 } else {
                     await ApiProvider.put(route("{{routePrefix}}.update", id), payload);
                     if (window.flashToast) {
-                        window.flashToast("success", "Sukses", "{{title}} berhasil diperbarui");
+                        window.flashToast("success", "Success", "{{title}} updated successfully");
                     }
                 }
                 window.location.href = route("{{routePrefix}}.index");

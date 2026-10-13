@@ -7,7 +7,7 @@ return [
     | RenKit Information
     |--------------------------------------------------------------------------
     */
-    'version' => '1.1.4',
+    'version' => '1.1.5',
     'developer' => 'RendyAFS',
     'github' => 'https://github.com/RendyAFS/renkit',
 
@@ -68,8 +68,8 @@ return [
     |
     */
     'localization' => [
-        'locales' => ['id', 'en'],
-        'default_locale' => env('RENKIT_LOCALE', 'id'),
+        'locales' => ['en', 'id'],
+        'default_locale' => env('RENKIT_LOCALE', 'en'),
         'auto_translate_models' => true,
     ],
 

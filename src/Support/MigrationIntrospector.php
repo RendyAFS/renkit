@@ -165,8 +165,8 @@ class MigrationIntrospector
             return <<<HTML
 <div class="p-6 text-center text-sm text-(--color-dark-gray) border border-dashed border-(--color-gray) rounded-xl">
     <i data-lucide="info" class="size-6 mx-auto mb-2 text-(--color-primary)"></i>
-    <p class="font-medium">Belum ada kolom custom pada migration terdeteksi.</p>
-    <p class="text-xs text-muted-foreground mt-1">Tambahkan kolom di file migration database lalu jalankan ulang: <code class="px-1.5 py-0.5 rounded bg-(--color-light-gray) font-mono">php artisan renkit:module {$studly}</code></p>
+    <p class="font-medium">No custom columns detected in migration.</p>
+    <p class="text-xs text-muted-foreground mt-1">Add columns in your migration file and re-run: <code class="px-1.5 py-0.5 rounded bg-(--color-light-gray) font-mono">php artisan renkit:module {$studly}</code></p>
 </div>
 HTML;
         }
@@ -201,7 +201,7 @@ HTML;
             class="py-2.5 px-4 block w-full border border-(--color-gray) rounded-lg text-sm
             focus:border-(--color-primary) focus:ring-(--color-primary)
             dark:bg-(--color-dark-slate) dark:border-(--color-slate) dark:text-(--color-light)"
-            placeholder="Masukkan {$label}"></textarea>
+            placeholder="Enter {$label}"></textarea>
     </div>\n
 HTML;
             } elseif ($name === 'password') {
@@ -267,7 +267,7 @@ HTML;
             class="py-2.5 px-4 block w-full border border-(--color-gray) rounded-lg text-sm
             focus:border-(--color-primary) focus:ring-(--color-primary)
             dark:bg-(--color-dark-slate) dark:border-(--color-slate) dark:text-(--color-light)"
-            placeholder="Masukkan {$label}">
+            placeholder="Enter {$label}">
     </div>\n
 HTML;
             }
@@ -339,10 +339,10 @@ HTML;
                     render(id, type, row) {
                         return `
                         <div class="flex items-center justify-center gap-2">
-                            <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" data-id="\${id}" title="Ubah">
+                            <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" data-id="\${id}" title="Edit">
                                 <i data-lucide="square-pen" class="size-4"></i>
                             </button>
-                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="\${id}" data-name="ID \${id}" title="Hapus">
+                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="\${id}" data-name="ID \${id}" title="Delete">
                                 <i data-lucide="trash-2" class="size-4"></i>
                             </button>
                         </div>
@@ -368,8 +368,8 @@ JS;
                     className: "px-4 py-3 text-center",
                     render(data) {
                         return data
-                            ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Aktif</span>`
-                            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>`;
+                            ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Active</span>`
+                            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Inactive</span>`;
                     },
                 },\n
 JS;
@@ -404,10 +404,10 @@ JS;
                     render(id, type, row) {
                         return `
                         <div class="flex items-center justify-center gap-2">
-                            <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" data-id="\${id}" title="Ubah">
+                            <button type="button" class="btn-edit p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" data-id="\${id}" title="Edit">
                                 <i data-lucide="square-pen" class="size-4"></i>
                             </button>
-                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="\${id}" data-name="\${row.{$firstCol} ?? ''}" title="Hapus">
+                            <button type="button" class="btn-delete p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" data-id="\${id}" data-name="\${row.{$firstCol} ?? ''}" title="Delete">
                                 <i data-lucide="trash-2" class="size-4"></i>
                             </button>
                         </div>
