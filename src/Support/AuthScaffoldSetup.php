@@ -89,7 +89,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -112,8 +111,8 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-        if (class_exists(Fortify::class)) {
-            Fortify::authenticateUsing(function (Request $request) {
+        if (class_exists(\Laravel\Fortify\Fortify::class)) {
+            \Laravel\Fortify\Fortify::authenticateUsing(function (Request $request) {
                 $request->validate([
                     'email' => ['required', 'string'],
                     'password' => ['required', 'string'],
@@ -138,11 +137,11 @@ class FortifyServiceProvider extends ServiceProvider
                 return $user;
             });
 
-            Fortify::loginView(function () {
+            \Laravel\Fortify\Fortify::loginView(function () {
                 return view('auth.login');
             });
 
-            Fortify::registerView(function () {
+            \Laravel\Fortify\Fortify::registerView(function () {
                 return view('auth.register');
             });
         }
@@ -162,8 +161,6 @@ PHP;
         if (! File::exists($target)) {
             $content = <<<'PHP'
 <?php
-
-use Laravel\Fortify\Features;
 
 return [
 
@@ -194,14 +191,14 @@ return [
         'two-factor' => 'two-factor',
     ],
 
-    'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
-        // Features::emailVerification(),
-        Features::updateProfileInformation(),
-        Features::updatePasswords(),
-        // Features::twoFactorAuthentication(),
-    ],
+    'features' => class_exists(\Laravel\Fortify\Features::class) ? [
+        \Laravel\Fortify\Features::registration(),
+        \Laravel\Fortify\Features::resetPasswords(),
+        // \Laravel\Fortify\Features::emailVerification(),
+        \Laravel\Fortify\Features::updateProfileInformation(),
+        \Laravel\Fortify\Features::updatePasswords(),
+        // \Laravel\Fortify\Features::twoFactorAuthentication(),
+    ] : [],
 
 ];
 PHP;

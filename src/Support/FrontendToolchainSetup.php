@@ -40,10 +40,9 @@ class FrontendToolchainSetup
         $devDependencies = [
             '@tailwindcss/forms' => '^0.5.11',
             '@tailwindcss/vite' => '^4.0.0',
-            'laravel-vite-plugin' => $content['devDependencies']['laravel-vite-plugin'] ?? '^2.0.0',
+            'laravel-vite-plugin' => $content['devDependencies']['laravel-vite-plugin'] ?? '^1.2.0',
             'tailwindcss' => '^4.0.0',
-            'vite' => $content['devDependencies']['vite'] ?? '^7.0.7',
-            'glob' => '^13.0.0',
+            'vite' => $content['devDependencies']['vite'] ?? '^6.0.11',
         ];
 
         $dependencies = [
@@ -55,6 +54,14 @@ class FrontendToolchainSetup
             'lucide' => '^0.562.0',
             'preline' => '^3.2.3',
         ];
+
+        if (! isset($content['devDependencies'])) {
+            $content['devDependencies'] = [];
+        }
+
+        if (! isset($content['dependencies'])) {
+            $content['dependencies'] = [];
+        }
 
         foreach ($devDependencies as $pkg => $ver) {
             $content['devDependencies'][$pkg] = $ver;
@@ -68,17 +75,33 @@ class FrontendToolchainSetup
     }
 
     /**
-     * Update vite.config.js to include Tailwind v4 and glob entrypoints.
+     * Update vite.config.js to include Tailwind v4 and native modular page script discovery without extra packages.
      */
     public function updateViteConfig(): void
     {
         $path = base_path('vite.config.js');
 
-        $viteContent = <<<JS
+        $viteContent = <<<'JS'
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
-import { glob } from "glob";
+import fs from "node:fs";
+import path from "node:path";
+
+function getFiles(dir, matchExt = ".js") {
+    if (!fs.existsSync(dir)) return [];
+    const files = [];
+    const items = fs.readdirSync(dir, { withFileTypes: true });
+    for (const item of items) {
+        const fullPath = path.join(dir, item.name).replace(/\\/g, "/");
+        if (item.isDirectory()) {
+            files.push(...getFiles(fullPath, matchExt));
+        } else if (item.name.endsWith(matchExt)) {
+            files.push(fullPath);
+        }
+    }
+    return files;
+}
 
 export default defineConfig({
     plugins: [
@@ -86,10 +109,8 @@ export default defineConfig({
             input: [
                 "resources/css/app.css",
                 "resources/js/app.js",
-                ...glob.sync([
-                    "resources/js/pages/**/*.js",
-                    "resources/js/utils/*.js",
-                ]),
+                ...getFiles("resources/js/pages"),
+                ...getFiles("resources/js/utils"),
             ],
             refresh: true,
         }),
@@ -100,9 +121,6 @@ export default defineConfig({
         port: 5173,
         headers: {
             "Access-Control-Allow-Origin": "*",
-        },
-        watch: {
-            ignored: ["**/storage/framework/views/**"],
         },
     },
 });
