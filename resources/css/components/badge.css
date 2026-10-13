@@ -1,0 +1,91 @@
+/* Badge Base */
+.badge {
+    @apply inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+/* Badge Danger */
+.badge-danger {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-danger) 35%,
+        transparent
+    );
+    color: var(--color-badge-danger-foreground);
+}
+
+.dark .badge-danger {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-danger-dark) 55%,
+        transparent
+    );
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+}
+
+/* Badge Warning */
+.badge-warning {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-warning) 35%,
+        transparent
+    );
+    color: var(--color-badge-warning-foreground);
+}
+
+.dark .badge-warning {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-warning-dark) 55%,
+        transparent
+    );
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+}
+
+/* Badge Success */
+.badge-success {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-success) 35%,
+        transparent
+    );
+    color: var(--color-badge-success-foreground);
+}
+
+.dark .badge-success {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-success-dark) 55%,
+        transparent
+    );
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+}
+
+/* Badge Info */
+.badge-info {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-info) 35%,
+        transparent
+    );
+    color: var(--color-badge-info-foreground);
+}
+
+.dark .badge-info {
+    background-color: color-mix(
+        in srgb,
+        var(--color-badge-info-dark) 55%,
+        transparent
+    );
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+}
+
+/* Badge Primary */
+.badge-primary {
+    background-color: color-mix(in srgb, var(--color-primary) 75%, transparent);
+    color: var(--color-light);
+}
+
+.dark .badge-primary {
+    background-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+}

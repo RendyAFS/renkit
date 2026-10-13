@@ -5,8 +5,6 @@ const Loading = {
         this._count++;
         if (this._count > 1) return;
 
-        if (!window.$?.blockUI) return;
-
         $.blockUI({
             message: `
                 <div class="flex flex-col items-center justify-center gap-4">
@@ -37,7 +35,7 @@ const Loading = {
                 padding: "0",
             },
             overlayCSS: {
-                backgroundColor: "rgba(0,0,0,0.85)",
+                backgroundColor: "rgba(0,0,0,0.90)",
                 cursor: "wait",
             },
         });
@@ -47,16 +45,12 @@ const Loading = {
         this._count = Math.max(0, this._count - 1);
         if (this._count > 0) return;
 
-        if (window.$?.unblockUI) {
-            $.unblockUI();
-        }
+        $.unblockUI();
     },
 
     forceStop() {
         this._count = 0;
-        if (window.$?.unblockUI) {
-            $.unblockUI();
-        }
+        $.unblockUI();
     },
 };
 

@@ -1,3 +1,5 @@
+import { initLucide } from "@/utils/lucide";
+
 export default function initCardgrid({
     containerId,
     filterSelector = null,
@@ -34,16 +36,61 @@ export default function initCardgrid({
                     if (el.id === "cg-search") return;
                     el.disabled = disabled;
                 });
+
+            controlsWrapper.querySelectorAll(".hs-select").forEach((el) => {
+                el.classList.toggle("pointer-events-none", disabled);
+                el.classList.toggle("opacity-50", disabled);
+            });
         }
 
+        // Fallback for individual elements
         const lengthEl = document.getElementById("cg-length");
-        if (lengthEl) lengthEl.disabled = disabled;
+        if (lengthEl) {
+            lengthEl.disabled = disabled;
+            const hsWrapper = lengthEl.closest(".hs-select");
+            if (hsWrapper) {
+                hsWrapper.classList.toggle("pointer-events-none", disabled);
+                hsWrapper.classList.toggle("opacity-50", disabled);
+            }
+        }
 
         if (filterSelector) {
             document.querySelectorAll(filterSelector).forEach((filterDom) => {
                 filterDom.disabled = disabled;
+                const hsWrapper = filterDom.closest(".hs-select");
+                if (hsWrapper) {
+                    hsWrapper.classList.toggle("pointer-events-none", disabled);
+                    hsWrapper.classList.toggle("opacity-50", disabled);
+                }
             });
         }
+
+        const pagEl = document.getElementById("cg-pagination");
+        if (pagEl) {
+            pagEl.classList.toggle("pointer-events-none", disabled);
+            pagEl.classList.toggle("opacity-50", disabled);
+            pagEl.querySelectorAll("button").forEach((btn) => {
+                btn.disabled = disabled;
+            });
+        }
+
+        // Filter di luar component — tandai wrapper-nya dengan: data-cg-page-filters="<gridId>"
+        document
+            .querySelectorAll(`[data-cg-page-filters="${gridId}"]`)
+            .forEach((wrapper) => {
+                wrapper.classList.toggle("pointer-events-none", disabled);
+                wrapper.classList.toggle("opacity-50", disabled);
+                wrapper
+                    .querySelectorAll("input, select, button, textarea")
+                    .forEach((el) => {
+                        el.disabled = disabled;
+                    });
+                wrapper
+                    .querySelectorAll(".hs-select, .flatpickr-input")
+                    .forEach((el) => {
+                        el.classList.toggle("pointer-events-none", disabled);
+                    });
+            });
     };
 
     const fetchData = async () => {
@@ -58,7 +105,7 @@ export default function initCardgrid({
         if (state.filter) params.append("filter", state.filter);
 
         if (ajax.data) {
-            const extra = typeof ajax.data === "function" ? ajax.data() : ajax.data;
+            const extra = ajax.data();
             Object.entries(extra).forEach(([k, v]) => params.append(k, v));
         }
 
@@ -84,6 +131,7 @@ export default function initCardgrid({
         }
     };
 
+    // Card Click Delegated Event Listener (attached once)
     if (cardClickRoute) {
         container.addEventListener("click", function (e) {
             const cardEl = e.target.closest(".cg-card-wrapper");
@@ -129,7 +177,7 @@ export default function initCardgrid({
             })
             .join("");
 
-        if (window.lucide) window.lucide.createIcons();
+        initLucide();
         if (window.HSStaticMethods) window.HSStaticMethods.autoInit();
     };
 
@@ -152,12 +200,22 @@ export default function initCardgrid({
             } else {
                 skeletonEl?.classList.add("hidden");
                 loadingEl?.classList.remove("hidden");
-                container.classList.add("pointer-events-none", "opacity-40", "scale-[0.99]");
+
+                container.classList.add(
+                    "pointer-events-none",
+                    "opacity-40",
+                    "scale-[0.99]",
+                );
             }
         } else {
             skeletonEl?.classList.add("hidden");
             loadingEl?.classList.add("hidden");
-            container.classList.remove("pointer-events-none", "opacity-40", "scale-[0.99]");
+
+            container.classList.remove(
+                "pointer-events-none",
+                "opacity-40",
+                "scale-[0.99]",
+            );
         }
 
         toggleControlsDisabled(loading);
@@ -167,20 +225,15 @@ export default function initCardgrid({
         const from = (state.page - 1) * state.perPage + 1;
         const to = Math.min(state.page * state.perPage, state.total);
         const infoEl = document.getElementById("cg-info");
+        const lang = window.cardgridLang?.[gridId] ?? {};
 
         if (infoEl) {
-            if (!state.total) {
-                infoEl.textContent = window.renkitLang?.empty || "Tidak ada data";
-                return;
-            }
-
-            const template = window.renkitLang?.showing_info
-                || "Menampilkan :from – :to dari :total";
-
-            infoEl.textContent = template
-                .replace(":from", from)
-                .replace(":to", to)
-                .replace(":total", state.total);
+            infoEl.textContent = state.total
+                ? (lang.showing ?? `Showing ${from} – ${to} of ${state.total}`)
+                      .replace(":from", from)
+                      .replace(":to", to)
+                      .replace(":total", state.total)
+                : (lang.noResults ?? "No results");
         }
     };
 
@@ -194,7 +247,9 @@ export default function initCardgrid({
         const last = total - 1;
 
         const btnTpl = document.getElementById("cg-pagination-btn-template");
-        const ellipsisTpl = document.getElementById("cg-pagination-ellipsis-template");
+        const ellipsisTpl = document.getElementById(
+            "cg-pagination-ellipsis-template",
+        );
         const prevTpl = document.getElementById("cg-pagination-prev-template");
         const nextTpl = document.getElementById("cg-pagination-next-template");
 
@@ -203,7 +258,10 @@ export default function initCardgrid({
             btn.dataset.page = page + 1;
             btn.textContent = label ?? page + 1;
             if (isCurrent) {
-                btn.classList.add("bg-(--color-primary)", "text-(--color-light)");
+                btn.classList.add(
+                    "bg-(--color-primary)",
+                    "text-(--color-light)",
+                );
                 btn.setAttribute("aria-current", "page");
             } else {
                 btn.classList.add(
@@ -223,9 +281,7 @@ export default function initCardgrid({
         if (current === 0) {
             prevBtn.classList.add("opacity-50", "cursor-not-allowed");
             prevBtn.disabled = true;
-        } else {
-            prevBtn.classList.add("hover:bg-(--color-light-gray)");
-        }
+        } else prevBtn.classList.add("hover:bg-(--color-light-gray)");
         paginationEl.append(prevBtn);
 
         paginationEl.append(createBtn(0, null, current === 0));
@@ -244,24 +300,23 @@ export default function initCardgrid({
 
         if (start > 1) paginationEl.append(ellipsisTpl.content.cloneNode(true));
         for (let i = start; i <= end; i++) {
-            if (i > 0 && i < last) {
+            if (i > 0 && i < last)
                 paginationEl.append(createBtn(i, null, i === current));
-            }
         }
-        if (end < last - 1) paginationEl.append(ellipsisTpl.content.cloneNode(true));
-        if (last > 0) paginationEl.append(createBtn(last, total, current === last));
+        if (end < last - 1)
+            paginationEl.append(ellipsisTpl.content.cloneNode(true));
+        if (last > 0)
+            paginationEl.append(createBtn(last, total, current === last));
 
         const nextBtn = nextTpl.content.cloneNode(true).querySelector("button");
         nextBtn.dataset.page = state.page + 1;
         if (current === last) {
             nextBtn.classList.add("opacity-50", "cursor-not-allowed");
             nextBtn.disabled = true;
-        } else {
-            nextBtn.classList.add("hover:bg-(--color-light-gray)");
-        }
+        } else nextBtn.classList.add("hover:bg-(--color-light-gray)");
         paginationEl.append(nextBtn);
 
-        if (window.lucide) window.lucide.createIcons();
+        initLucide();
     };
 
     const searchInput = document.getElementById("cg-search");
@@ -269,8 +324,10 @@ export default function initCardgrid({
 
     searchInput?.addEventListener("input", function () {
         if (isLoading) return;
+
         const value = this.value;
 
+        // toggle clear button
         if (value.length > 0) {
             clearBtn?.classList.remove("hidden");
             clearBtn?.classList.add("flex");
@@ -280,6 +337,7 @@ export default function initCardgrid({
         }
 
         clearTimeout(searchTimeout);
+
         searchTimeout = setTimeout(() => {
             state.search = value;
             state.page = 1;
@@ -287,23 +345,31 @@ export default function initCardgrid({
         }, 500);
     });
 
+    // clear search
     clearBtn?.addEventListener("click", () => {
         if (isLoading) return;
+
         searchInput.value = "";
+
         clearBtn.classList.remove("flex");
         clearBtn.classList.add("hidden");
+
         state.search = "";
         state.page = 1;
+
         fetchData();
+
         searchInput.focus();
     });
 
-    document.getElementById("cg-length")?.addEventListener("change", function () {
-        if (isLoading) return;
-        state.perPage = parseInt(this.value);
-        state.page = 1;
-        fetchData();
-    });
+    document
+        .getElementById("cg-length")
+        ?.addEventListener("change", function () {
+            if (isLoading) return;
+            state.perPage = parseInt(this.value);
+            state.page = 1;
+            fetchData();
+        });
 
     if (filterSelector) {
         document.addEventListener("change", (e) => {

@@ -1,0 +1,35 @@
+@import "./theme.css";
+@import "tailwindcss";
+@import "./loading.css";
+@import "./splash.css";
+@import "flatpickr/dist/flatpickr.css";
+
+/* Toggling Manual Dark Mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Preline UI */
+@import "../../node_modules/preline/variants.css";
+@source "../../node_modules/preline/dist/*.js";
+@plugin "@tailwindcss/forms";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Components */
+@import "./components/badge.css";
+@import "./components/checkbox.css";
+@import "./components/flatpickr.css";
+@import "./components/scrollbar.css";
+@import "./components/datatable.css";
+
+html.sidebar-floating-init #hs-sidebar-content-push {
+    display: none !important;
+}
+html.sidebar-floating-init #app-content-area {
+    margin-inline-start: 0 !important;
+}
+html.sidebar-floating-init #sidebar-floating-trigger {
+    display: flex !important;
+}

@@ -3,11 +3,13 @@
 namespace RendyAFS\RenKit\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use RendyAFS\RenKit\Generators\BackendGenerator;
 use RendyAFS\RenKit\Generators\FrontendGenerator;
 use RendyAFS\RenKit\Generators\LangIntegrator;
 use RendyAFS\RenKit\Generators\MenuIntegrator;
 use RendyAFS\RenKit\Generators\RouteIntegrator;
+use RendyAFS\RenKit\Support\MigrationIntrospector;
 use RendyAFS\RenKit\Support\StubCompiler;
 
 class RenKitModuleCommand extends Command
@@ -31,7 +33,8 @@ class RenKitModuleCommand extends Command
         FrontendGenerator $frontendGen,
         RouteIntegrator $routeIntegrator,
         MenuIntegrator $menuIntegrator,
-        LangIntegrator $langIntegrator
+        LangIntegrator $langIntegrator,
+        MigrationIntrospector $introspector
     ): int {
         $rawName = trim($this->argument('name'));
 
@@ -41,11 +44,32 @@ class RenKitModuleCommand extends Command
             return self::FAILURE;
         }
 
+        $vars = $compiler->getModuleVariables($rawName);
+
         $isSimple = (bool) $this->option('simple');
         $isResource = (bool) $this->option('resource');
         $isCardgrid = (bool) $this->option('cardgrid');
         $isDatatable = (bool) $this->option('datatable');
         $force = (bool) $this->option('force');
+
+        // Check if module files already exist -> ask interactive replace
+        $modelPath = app_path("Models/{$vars['studly']}.php");
+        $viewPath = resource_path("views/{$vars['viewFolder']}/form.blade.php");
+
+        if ((File::exists($modelPath) || File::exists($viewPath)) && ! $force) {
+            if ($this->input->isInteractive()) {
+                $confirmed = $this->confirm(
+                    "Module [{$vars['studly']}] files already exist. Would you like to update and replace files with the latest migration schema?",
+                    false
+                );
+                if (! $confirmed) {
+                    $this->components->warn("Generation cancelled. Existing files preserved.");
+
+                    return self::SUCCESS;
+                }
+                $force = true;
+            }
+        }
 
         // 1. Determine CRUD Mode (Simple modal vs Resource full-page)
         $mode = 'simple';
@@ -87,7 +111,21 @@ class RenKitModuleCommand extends Command
             $viewType = 'datatable';
         }
 
-        $vars = $compiler->getModuleVariables($rawName);
+        // 3. Inspect Migration Schema
+        $columns = $introspector->inspect($vars['tableName']);
+        $columnsCount = count($columns);
+
+        $schema = [
+            'modelFillable' => $introspector->generateModelFillable($columns),
+            'modelCasts' => $introspector->generateModelCasts($columns),
+            'validationRules' => $introspector->generateValidationRules($columns, $vars['tableName']),
+            'formInputs' => $introspector->generateFormBlade($columns, $vars['kebab'], $vars['studly']),
+            'tableHeaders' => $introspector->generateTableHeaders($columns),
+            'jsColumns' => $introspector->generateJsColumns($columns, $vars['kebab']),
+            'jsPayload' => $introspector->generateJsPayload($columns),
+            'jsReset' => $introspector->generateJsReset($columns, $vars['kebab']),
+            'jsFill' => $introspector->generateJsFill($columns, $vars['kebab']),
+        ];
 
         $this->newLine();
         $this->components->info("🚀 Generating RenKit Module: {$vars['studly']}");
@@ -98,13 +136,14 @@ class RenKitModuleCommand extends Command
         $this->components->twoColumnDetail('View Layout', $viewType === 'cardgrid' ? 'CardGrid (<x-cardgrid>)' : 'DataTable (<x-datatable>)');
         $this->components->twoColumnDetail('Target Route', "/{$vars['routePrefix']}");
         $this->components->twoColumnDetail('Target Table', $vars['tableName']);
+        $this->components->twoColumnDetail('Migration Schema', $columnsCount > 0 ? "<fg=green>{$columnsCount} columns detected</>" : '<fg=yellow>Empty / not yet migrated</>');
         $this->newLine();
 
         $generatedFiles = [];
 
         // 1. Generate Backend Files
-        $this->components->task('Generating Backend Architecture', function () use ($backendGen, $vars, $mode, $force, &$generatedFiles) {
-            $backendFiles = $backendGen->generate($vars, $mode, $force);
+        $this->components->task('Generating Backend Architecture', function () use ($backendGen, $vars, $mode, $force, $schema, &$generatedFiles) {
+            $backendFiles = $backendGen->generate($vars, $mode, $force, $schema);
             foreach ($backendFiles as $type => $path) {
                 $generatedFiles[] = [$type, str_replace(base_path().DIRECTORY_SEPARATOR, '', $path)];
             }
@@ -113,8 +152,8 @@ class RenKitModuleCommand extends Command
         });
 
         // 2. Generate Frontend Files (Blade & JS)
-        $this->components->task('Generating Frontend Views & Scripts', function () use ($frontendGen, $vars, $mode, $viewType, $force, &$generatedFiles) {
-            $frontendFiles = $frontendGen->generate($vars, $mode, $viewType, $force);
+        $this->components->task('Generating Frontend Views & Scripts', function () use ($frontendGen, $vars, $mode, $viewType, $force, $schema, &$generatedFiles) {
+            $frontendFiles = $frontendGen->generate($vars, $mode, $viewType, $force, $schema);
             foreach ($frontendFiles as $type => $path) {
                 $generatedFiles[] = [$type, str_replace(base_path().DIRECTORY_SEPARATOR, '', $path)];
             }

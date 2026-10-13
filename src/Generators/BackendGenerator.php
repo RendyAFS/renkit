@@ -16,10 +16,18 @@ class BackendGenerator
      *
      * @param  array<string, string>  $vars
      * @param  string  $mode  'simple' or 'resource'
+     * @param  bool  $force
+     * @param  array<string, string>  $schema
      * @return array<string, string> Created files list
      */
-    public function generate(array $vars, string $mode = 'simple', bool $force = false): array
+    public function generate(array $vars, string $mode = 'simple', bool $force = false, array $schema = []): array
     {
+        $vars = array_merge($vars, $schema);
+
+        $vars['modelFillable'] ??= "[\n        'name',\n        'description',\n        'is_active',\n    ]";
+        $vars['modelCasts'] ??= "[\n            'is_active' => 'boolean',\n        ]";
+        $vars['validationRules'] ??= "[\n            'name'        => ['required', 'string', 'max:255'],\n            'description' => ['nullable', 'string'],\n            'is_active'   => ['nullable', 'boolean'],\n        ]";
+
         $created = [];
 
         // 1. Model
@@ -89,7 +97,16 @@ class BackendGenerator
     protected function findExistingMigration(string $tableName): ?string
     {
         $files = File::glob(database_path("migrations/*_create_{$tableName}_table.php"));
+        if (! empty($files)) {
+            return $files[0];
+        }
 
-        return ! empty($files) ? $files[0] : null;
+        $fallbackFiles = File::glob(database_path("migrations/*_{$tableName}_table.php"));
+        if (! empty($fallbackFiles)) {
+            return $fallbackFiles[0];
+        }
+
+        $fallbackWildcard = File::glob(database_path("migrations/*_{$tableName}*.php"));
+        return ! empty($fallbackWildcard) ? $fallbackWildcard[0] : null;
     }
 }

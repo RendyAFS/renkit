@@ -24,18 +24,7 @@
         <x-datatable id="{{routePrefix}}-datatable" filterId="filter-{{routePrefix}}">
             <thead class="border-b">
                 <tr>
-                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase">
-                        Nama
-                    </th>
-                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase">
-                        Deskripsi
-                    </th>
-                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase text-center">
-                        Status
-                    </th>
-                    <th class="bg-(--color-light-gray) dark:bg-(--color-dark-slate) px-6 py-3 text-xs font-medium text-muted-foreground-1 uppercase text-center">
-                        <i data-lucide="settings" class="size-4 mx-auto"></i>
-                    </th>
+{{tableHeaders}}
                 </tr>
             </thead>
             <tbody class="divide-y divide-(--color-gray) dark:divide-(--color-dark-gray)"></tbody>

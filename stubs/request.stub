@@ -21,24 +21,6 @@ class Save{{studly}}Request extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name'        => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'is_active'   => ['nullable', 'boolean'],
-        ];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'name'        => 'Nama',
-            'description' => 'Deskripsi',
-            'is_active'   => 'Status Aktif',
-        ];
+        return {{validationRules}};
     }
 }

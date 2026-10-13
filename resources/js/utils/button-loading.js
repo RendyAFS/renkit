@@ -8,6 +8,7 @@ function setLoading(button, isLoading) {
     const originalText = button.dataset.originalText;
 
     if (isLoading) {
+        // simpan text asli sekali
         if (!originalText && text) {
             button.dataset.originalText = text.textContent;
         }

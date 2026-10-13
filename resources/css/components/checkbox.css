@@ -1,0 +1,33 @@
+.checkbox-custom {
+    @apply shrink-0 rounded-sm cursor-pointer disabled:opacity-50;
+
+    border-width: 1px;
+    border-color: var(--color-gray);
+    color: var(--color-primary);
+}
+
+/* focus */
+.checkbox-custom:focus {
+    @apply ring-2 outline-none;
+    --tw-ring-color: var(--color-primary);
+}
+
+/* checked */
+.checkbox-custom:checked {
+    border-color: var(--color-primary);
+}
+
+/* dark mode */
+.dark .checkbox-custom {
+    background-color: var(--color-dark-slate);
+    border-color: var(--color-slate);
+}
+
+.dark .checkbox-custom:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.dark .checkbox-custom:focus {
+    --tw-ring-offset-color: var(--color-dark-slate);
+}

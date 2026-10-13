@@ -7,7 +7,7 @@ return [
     | RenKit Information
     |--------------------------------------------------------------------------
     */
-    'version' => '1.0.0',
+    'version' => '1.1.0',
     'developer' => 'RendyAFS',
     'github' => 'https://github.com/RendyAFS/renkit',
 
@@ -38,6 +38,12 @@ return [
     |
     */
     'features' => [
+        // Frontend toolchain with Tailwind CSS v4, Preline UI, and Vite globbing
+        'frontend_toolchain' => env('RENKIT_FRONTEND_TOOLCHAIN', true),
+
+        // Authentication scaffolding with Fortify & Preline UI Views
+        'auth_scaffold' => env('RENKIT_AUTH_SCAFFOLD', true),
+
         // Multi-language translation support via lang/{locale}/
         'localization' => env('RENKIT_LOCALIZATION', true),
 

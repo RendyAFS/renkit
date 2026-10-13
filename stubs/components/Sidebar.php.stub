@@ -1,0 +1,60 @@
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\Support\Collection;
+use Illuminate\View\Component;
+use Illuminate\Support\Facades\Auth;
+
+class Sidebar extends Component
+{
+    public Collection $menus;
+
+    public function __construct()
+    {
+        $user = Auth::user();
+
+        // 1. If database Menu model exists and table has data, use it
+        if (class_exists(\App\Models\Menu::class)) {
+            try {
+                $query = \App\Models\Menu::query()
+                    ->whereNull('parent_id')
+                    ->where('is_active', true)
+                    ->orderBy('sort_order');
+
+                if (method_exists(\App\Models\Menu::class, 'children')) {
+                    $query->with([
+                        'children.permissions:id,name,menu_id',
+                        'permissions:id,name,menu_id'
+                    ]);
+                }
+
+                if ($user && method_exists($user, 'hasRole') && $user->hasRole('Super Admin')) {
+                    $this->menus = $query->get();
+                    return;
+                }
+
+                $dbMenus = $query->get();
+                if ($dbMenus->isNotEmpty()) {
+                    $this->menus = $dbMenus;
+                    return;
+                }
+            } catch (\Throwable $e) {
+                // Table might not be migrated yet, fallback to config
+            }
+        }
+
+        // 2. Fallback to config/menu.php (always works out-of-the-box!)
+        $configMenus = config('menu', []);
+        $this->menus = collect($configMenus)->map(function ($item) {
+            $obj = (object) $item;
+            $obj->children = collect($item['children'] ?? [])->map(fn ($c) => (object) $c);
+            return $obj;
+        });
+    }
+
+    public function render()
+    {
+        return view('components.sidebar');
+    }
+}

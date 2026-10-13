@@ -1,0 +1,32 @@
+div.dataTables_wrapper {
+    position: relative;
+}
+
+div.dataTables_processing {
+    position: absolute !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(3px);
+
+    border: none !important;
+    box-shadow: none !important;
+
+    z-index: 100;
+}
+
+.dark div.dataTables_processing {
+    background: rgba(15, 23, 42, 0.7) !important;
+}
+
+

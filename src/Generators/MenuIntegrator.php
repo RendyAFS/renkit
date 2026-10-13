@@ -17,10 +17,9 @@ class MenuIntegrator
         $menuPath = config_path('menu.php');
 
         if (! File::exists($menuPath)) {
-            return [
-                'status' => false,
-                'message' => 'config/menu.php file not found.',
-            ];
+            File::ensureDirectoryExists(dirname($menuPath));
+            $defaultStarter = "<?php\n\nreturn [\n    [\n        'name' => 'Dashboard',\n        'icon' => 'layout-dashboard',\n        'url'  => '/dashboard',\n    ],\n];\n";
+            File::put($menuPath, $defaultStarter);
         }
 
         $content = File::get($menuPath);

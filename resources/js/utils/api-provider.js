@@ -11,9 +11,16 @@ const http = axios.create({
     },
 });
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 http.interceptors.request.use(
-    (config) => {
+    async (config) => {
         Loading.start();
+
+        const method = config.method?.toLowerCase();
+
+        await sleep(500);
+
         return config;
     },
     (error) => {
@@ -36,61 +43,98 @@ http.interceptors.response.use(
 
 const ApiProvider = {
     async get(url, params = null) {
-        const response = await http.get(url, { params });
-        return response.data;
+        try {
+            const response = await http.get(url, { params });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
     async post(url, data = null) {
-        const response = await http.post(url, data);
-        return response.data;
+        try {
+            const response = await http.post(url, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
     async put(url, data = null) {
-        const response = await http.put(url, data);
-        return response.data;
+        try {
+            const response = await http.put(url, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
     async delete(url) {
-        const response = await http.delete(url);
-        return response.data;
+        try {
+            const response = await http.delete(url);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     },
     handleAxiosError(error) {
         const response = error.response;
-        const errTitle = "Error";
+        const lang = window.langApiProvider ?? {};
+        const errTitle = window.langCustomAlert?.error ?? "Error";
 
         if (!response) {
-            if (window.Toast?.error) window.Toast.error(errTitle, "Koneksi bermasalah atau server tidak merespon");
+            Toast.error(
+                errTitle,
+                lang.networkError ?? "Network Error or Server Down",
+            );
             return;
         }
 
         switch (response.status) {
             case 401:
-                if (window.Toast?.error) window.Toast.error(errTitle, "Sesi berakhir. Memuat ulang halaman...");
-                setTimeout(() => window.location.reload(), 3000);
+                Toast.error(errTitle, lang.invalidSession ?? "Invalid Session");
+                setTimeout(() => window.location.reload(), 4000);
                 break;
             case 403:
-                if (window.Toast?.error) window.Toast.error(errTitle, "Akses ditolak (403)");
+                Toast.error(errTitle, lang.accessDenied ?? "Access Denied");
                 break;
             case 404:
-                if (window.Toast?.error) window.Toast.error(errTitle, "Data tidak ditemukan (404)");
+                Toast.error(errTitle, lang.notFound ?? "Data not found");
                 break;
             case 419:
-                if (window.Toast?.error) window.Toast.error(errTitle, "Sesi kedaluwarsa. Memuat ulang...");
-                setTimeout(() => window.location.reload(), 3000);
+                Toast.error(
+                    errTitle,
+                    lang.pageExpired ?? "Page Expired. Refreshing...",
+                );
+                setTimeout(() => window.location.reload(), 4000);
                 break;
             case 422:
                 if (response.data.errors) {
                     Object.values(response.data.errors)
                         .flat()
                         .forEach((msg) => {
-                            if (window.Toast?.error) window.Toast.error("Validasi Gagal", msg);
+                            Toast.error(
+                                lang.validationError ?? "Validation Error",
+                                msg,
+                                4000,
+                            );
                         });
-                } else if (window.Toast?.error) {
-                    window.Toast.error("Validasi Gagal", response.data.message);
+                } else {
+                    Toast.error(
+                        lang.validationError ?? "Validation Error",
+                        response.data.message,
+                    );
                 }
                 break;
             case 500:
-                if (window.Toast?.error) window.Toast.error(errTitle, "Terjadi kesalahan internal server (500)");
+                Toast.error(
+                    lang.serverError ?? "Server Error",
+                    lang.internalServerError ?? "Internal Server Error",
+                );
                 break;
             default:
-                if (window.Toast?.error) window.Toast.error(errTitle, response.data.message || "Terjadi kesalahan");
+                Toast.error(
+                    errTitle,
+                    response.data.message ||
+                        (lang.unknownError ?? "Unknown Error"),
+                );
                 break;
         }
     },
