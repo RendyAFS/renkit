@@ -38,7 +38,7 @@ class {{studly}}Controller extends Controller
         return view('{{viewFolder}}.create');
     }
 
-    public function store(Save{{studly}}Request $request, Save{{studlyAction}}Action $action): {{studly}}Resource
+    public function store(Save{{studly}}Request $request, Save{{studly}}Action $action): {{studly}}Resource
     {
         $this->authorize('{{permissionKey}}.create');
 
