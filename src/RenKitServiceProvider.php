@@ -61,6 +61,20 @@ class RenKitServiceProvider extends ServiceProvider
         // Load package translations (renkit::)
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'renkit');
 
+        // Register localization route & middleware if feature is enabled
+        if (config('renkit.features.localization', true)) {
+            $router = $this->app['router'];
+            $router->pushMiddlewareToGroup('web', \RendyAFS\RenKit\Http\Middleware\SetLocale::class);
+
+            $router->middleware('web')->get('/locale/{locale}', function (string $locale) {
+                if (! in_array($locale, config('renkit.localization.locales', ['id', 'en']), true)) {
+                    abort(404);
+                }
+                session(['locale' => $locale]);
+                return redirect()->back();
+            })->name('locale.switch');
+        }
+
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([

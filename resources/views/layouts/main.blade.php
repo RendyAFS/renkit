@@ -19,8 +19,28 @@
     </script>
     <title>{{ $title ?? config('app.name', 'RenKit') }}</title>
 
-    <script src="{{ Vite::asset('resources/js/utils/init-filter-storage.js') }}"></script>
-    <script src="{{ Vite::asset('resources/js/utils/init-theme.js') }}"></script>
+    <script>
+        (function() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var hasValues = [...params.entries()].some(function (entry) { return entry[1] !== ""; });
+                if (!hasValues) {
+                    var key = "filters:" + window.location.pathname;
+                    var stored = sessionStorage.getItem(key);
+                    if (stored) { window.location.replace(window.location.pathname + "?" + stored); }
+                }
+            } catch (e) {}
+
+            try {
+                var html = document.documentElement;
+                var storedTheme = localStorage.getItem("hs_theme") || "auto";
+                var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                var isDark = storedTheme === "dark" || (storedTheme === "auto" && prefersDark);
+                html.classList.toggle("dark", isDark);
+                html.classList.toggle("light", !isDark);
+            } catch (e) {}
+        })();
+    </script>
 
     @vite(['resources/css/app.css'])
 

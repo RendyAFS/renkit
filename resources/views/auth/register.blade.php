@@ -22,7 +22,7 @@
                                     {{ __('auth.register', ['default' => 'Sign Up']) }}</h1>
                             </div>
                             <div class="flex items-center gap-4">
-                                @if(View::exists('components.toggle-language'))
+                                @if(Route::has('locale.switch') && View::exists('components.toggle-language'))
                                     @include('components.toggle-language')
                                 @endif
                                 @if(View::exists('components.toggle-theme'))

@@ -1,3 +1,4 @@
+@if (Route::has('locale.switch'))
 <div class="hs-dropdown inline-flex">
     <button id="hs-dropdown-locale" type="button"
         class="hs-dropdown-toggle inline-flex items-center gap-x-2 px-3 py-2 text-sm font-medium rounded-lg hover:bg-(--color-gray)/20 dark:hover:bg-(--color-gray)/20 cursor-pointer">
@@ -23,3 +24,4 @@
         </a>
     </div>
 </div>
+@endif

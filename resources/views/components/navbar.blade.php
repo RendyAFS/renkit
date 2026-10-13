@@ -20,7 +20,7 @@
             @endif
 
             <!-- Language Toggle -->
-            @if(View::exists('components.toggle-language'))
+            @if(Route::has('locale.switch') && View::exists('components.toggle-language'))
                 @include('components.toggle-language')
             @endif
 
