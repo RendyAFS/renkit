@@ -110,7 +110,6 @@ export default defineConfig({
                 "resources/css/app.css",
                 "resources/js/app.js",
                 ...getFiles("resources/js/pages"),
-                ...getFiles("resources/js/utils"),
             ],
             refresh: true,
         }),

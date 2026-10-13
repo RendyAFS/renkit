@@ -7,7 +7,7 @@ return [
     | RenKit Information
     |--------------------------------------------------------------------------
     */
-    'version' => '1.1.1',
+    'version' => '1.1.2',
     'developer' => 'RendyAFS',
     'github' => 'https://github.com/RendyAFS/renkit',
 
